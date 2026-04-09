@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>喵喵语记 - 你的专属语言猫</title>
+<title>喵喵语记 - 你的温暖陪伴猫</title>
 <style>
     :root {
         --light-blue: #D6EAF8;
@@ -142,35 +142,35 @@
     </header>
 
     <div id="view-home" class="view-section">
-        <h2>你的猫窝 (语集)</h2>
+        <h2>你的记忆小窝 (语集)</h2>
         <ul class="collection-list" id="collection-list"></ul>
         <div style="margin-top: 15px; text-align: center;">
-            <button class="btn btn-blue" onclick="showCreateCollection()">+ 收养新语集</button>
+            <button class="btn btn-blue" onclick="showCreateCollection()">+ 建立新的小窝</button>
         </div>
         <div class="bottom-nav">
-            <button class="btn" onclick="showMistakes()">😾 猫猫记仇本 (错题)</button>
+            <button class="btn" onclick="showMistakes()">🐾 偶尔迷路的句子 (备忘录)</button>
         </div>
     </div>
 
     <div id="view-edit" class="view-section hidden">
         <button class="btn btn-small" style="margin-bottom: 10px;" onclick="navTo('view-home')">🔙 返回</button>
         <h2 id="edit-title">装扮新语集</h2>
-        <input type="text" id="col-name" placeholder="给语集起个可爱的名字，比如：摸鱼日语">
+        <input type="text" id="col-name" placeholder="给记忆小窝起个温暖的名字，比如：治愈系日语">
         <input type="text" id="col-icon" placeholder="输入Emoji图标" style="width: 130px; margin-top:10px;">
         
-        <h3 style="margin-top: 20px;">喂食新词句 (三行一组)</h3>
-        <p style="font-size: 14px; font-weight: bold; color: var(--black); margin-top: 5px;">喵仓已有猫粮：<span id="col-count" style="color:var(--flame-on);">0</span> 句</p>
+        <h3 style="margin-top: 20px;">放入新的句子 (三行一组)</h3>
+        <p style="font-size: 14px; font-weight: bold; color: var(--black); margin-top: 5px;">小窝里已有记忆：<span id="col-count" style="color:var(--flame-on);">0</span> 句</p>
         <p style="font-size: 12px; color: #666; margin-top: 5px; line-height: 1.4;">
-            *必须按3行一组输入，不可空行：<br>
+            * 请按3行一组放入，中间不要留空行哦：<br>
             第1行：原文<br>第2行：翻译<br>第3行：语法分析
         </p>
         <textarea id="col-sentences" placeholder="我是一只猫&#10;I am a cat.&#10;主语+系动词+表语&#10;她喜欢苹果&#10;She likes apples.&#10;一般现在时..."></textarea>
         
         <div style="margin-top: 15px; display: flex; gap: 10px;">
-            <button class="btn btn-green" onclick="saveCollection()">💾 保存并追加</button>
+            <button class="btn btn-green" onclick="saveCollection()">💾 轻轻放进小窝</button>
         </div>
 
-        <h3 style="margin-top: 25px; border-top: 2px dashed var(--black); padding-top: 15px;">已存猫粮 (点击修改或删除)</h3>
+        <h3 style="margin-top: 25px; border-top: 2px dashed var(--black); padding-top: 15px;">已珍藏的句子 (点击修改或轻轻放下)</h3>
         <div id="existing-sentences-list" style="margin-top: 10px;"></div>
     </div>
 
@@ -187,7 +187,7 @@
                 <circle cx="65" cy="55" r="5" fill="var(--black)"/>
                 <path d="M45 70 Q50 75 55 70" stroke="var(--black)" stroke-width="3" stroke-linecap="round" fill="none"/>
             </svg>
-            <div class="speech-bubble" id="play-prompt">把下面的词块拼成完整的句子哄哄我吧！</div>
+            <div class="speech-bubble" id="play-prompt">将散落的记忆碎片拼凑起来吧！</div>
         </div>
 
         <div class="drop-zone" id="answer-zone"></div>
@@ -196,10 +196,10 @@
         <div class="word-pool" id="word-pool"></div>
 
         <div style="margin-top: 20px; display: flex; justify-content: space-between;">
-            <button class="btn" onclick="navTo('view-home')">🏃 溜了溜了</button>
+            <button class="btn" onclick="navTo('view-home')">🍃 歇息一下</button>
             <div style="display: flex; gap: 10px;">
-                <button class="btn btn-blue" id="btn-skip" onclick="skipAnswer()">⏭️ 跳过此句</button>
-                <button class="btn btn-green" id="btn-check" onclick="checkAnswer()" disabled>🐾 猫猫验收</button>
+                <button class="btn btn-blue" id="btn-skip" onclick="skipAnswer()">⏭️ 先跳过这句</button>
+                <button class="btn btn-green" id="btn-check" onclick="checkAnswer()" disabled>🐾 轻轻确认</button>
                 <button class="btn btn-green hidden" id="btn-next" onclick="onNextClicked()">➡️ 下一句</button>
             </div>
         </div>
@@ -207,7 +207,7 @@
 
     <div id="view-mistakes" class="view-section hidden">
         <button class="btn btn-small" style="margin-bottom: 10px;" onclick="navTo('view-home')">🔙 返回</button>
-        <h2>😾 猫猫记仇本</h2>
+        <h2>🐾 猫猫的温柔备忘录</h2>
         <ul class="collection-list" id="mistake-list"></ul>
     </div>
 </div>
@@ -328,7 +328,7 @@
         const yesterday = new Date(Date.now() - 86400000).toDateString();
         
         if(cols.length === 0) {
-            list.innerHTML = '<p style="text-align:center; color:#7F8C8D; padding:20px;">还没有领养任何语集哦，快点击下方按钮吧！</p>';
+            list.innerHTML = '<p style="text-align:center; color:#7F8C8D; padding:20px;">还没有建立任何记忆小窝哦，快点击下方按钮吧！</p>';
         } else {
             cols.forEach(col => {
                 const li = document.createElement('li');
@@ -347,7 +347,7 @@
                         <span style="font-size:24px;">${col.icon || '📦'}</span>
                         <div style="display:flex; flex-direction:column; overflow:hidden;">
                             <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${col.name}</span>
-                            <span style="font-size:12px; font-weight:normal; color:#555; margin-top:3px;">共 ${col.cards.length} 句 | 需复习: ${dueCount}</span>
+                            <span style="font-size:12px; font-weight:normal; color:#555; margin-top:3px;">共 ${col.cards.length} 句 | 需重温: ${dueCount}</span>
                         </div>
                     </div>
                     <div class="collection-right">
@@ -360,7 +360,7 @@
                         </div>
                         <button class="btn-quick-play" onclick="quickStartPlay(event, '${col.id}')">
                             <svg width="20" height="20" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#fff" stroke="var(--black)" stroke-width="4"/><path d="M25 45 L35 20 L50 35 L65 20 L75 45" fill="#fff" stroke="var(--black)" stroke-width="4" stroke-linejoin="round"/><circle cx="35" cy="55" r="4" fill="var(--black)"/><circle cx="65" cy="55" r="4" fill="var(--black)"/><path d="M45 65 Q50 70 55 65" stroke="var(--black)" stroke-width="3" stroke-linecap="round" fill="none"/></svg>
-                            撸猫
+                            去陪伴
                         </button>
                     </div>
                 `;
@@ -373,17 +373,17 @@
     // --- Collection Management ---
     function showCreateCollection() {
         currentCollectionId = Date.now().toString();
-        document.getElementById('edit-title').innerText = "装扮新语集";
+        document.getElementById('edit-title').innerText = "装扮新小窝";
         document.getElementById('col-name').value = ''; document.getElementById('col-icon').value = '🐈';
         document.getElementById('col-sentences').value = ''; document.getElementById('col-count').innerText = "0";
-        document.getElementById('existing-sentences-list').innerHTML = '<p style="font-size: 14px; color: #666;">喵仓空空如也，先保存并追加喂食吧~</p>';
+        document.getElementById('existing-sentences-list').innerHTML = '<p style="font-size: 14px; color: #666;">小窝里暂时空空的，先写下几句心里话吧~</p>';
         navTo('view-edit');
     }
 
     function editCollection(id) {
         currentCollectionId = id;
         const col = collections[id];
-        document.getElementById('edit-title').innerText = "管理与投喂猫粮";
+        document.getElementById('edit-title').innerText = "管理与填充小窝";
         document.getElementById('col-name').value = col.name; document.getElementById('col-icon').value = col.icon;
         document.getElementById('col-sentences').value = ''; document.getElementById('col-count').innerText = col.cards.length; 
         renderExistingSentences();
@@ -396,7 +396,7 @@
         const col = collections[currentCollectionId];
         
         if(!col || !col.cards || col.cards.length === 0) {
-            list.innerHTML = '<p style="font-size: 14px; color: #666;">喵仓空空如也，赶快在上方投喂吧~</p>';
+            list.innerHTML = '<p style="font-size: 14px; color: #666;">小窝里暂时空空的，先写下几句心里话吧~</p>';
             return;
         }
 
@@ -461,7 +461,7 @@
             };
 
             delBtn.onclick = () => {
-                if(confirm('确定要扔掉这句猫粮吗？')) {
+                if(confirm('确定要让这句话随风飘散吗？')) {
                     col.cards = col.cards.filter(c => c.id !== card.id);
                     document.getElementById('col-count').innerText = col.cards.length;
                     saveData(); renderExistingSentences();
@@ -474,14 +474,14 @@
     }
 
     function saveCollection() {
-        const name = document.getElementById('col-name').value || '未命名猫窝';
+        const name = document.getElementById('col-name').value || '未命名小窝';
         const icon = document.getElementById('col-icon').value || '🐈';
         const text = document.getElementById('col-sentences').value;
         
         const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         
         if (lines.length > 0 && lines.length % 3 !== 0) {
-            alert("喵！喂食格式不对哦！必须是【原文】、【翻译】、【语法】各占一行，总行数必须是3的倍数。请检查一下~");
+            alert("喵~ 放入句子的格式好像有一点点偏离哦！请确保【原文】、【翻译】、【语法】各占一行，总行数是3的倍数。再检查一下吧~");
             return;
         }
         
@@ -533,7 +533,7 @@
     function startPlaySession() {
         const col = collections[currentCollectionId];
         if (!col || col.cards.length === 0) {
-            alert("这个猫窝还没有喂食（句子）哦，先添加一些吧！");
+            alert("这个小窝里还没有放入任何句子哦，先去添加一点温暖的记忆吧！");
             return;
         }
 
@@ -573,7 +573,7 @@
         gramBox.classList.add('hidden');
         gramBox.innerHTML = `<strong>语法分析：</strong><br>${card.grammar || '无'}`;
 
-        document.getElementById('play-prompt').innerHTML = `将散落的毛线球（词块）连起来吧！`;
+        document.getElementById('play-prompt').innerHTML = `将散落的记忆碎片拼凑起来吧！`;
         
         document.getElementById('btn-skip').classList.remove('hidden');
         document.getElementById('btn-check').classList.remove('hidden');
@@ -671,7 +671,7 @@
         
         const blocks = document.getElementById('answer-zone').children;
         for(let b of blocks) b.classList.remove('wrong', 'correct');
-        document.getElementById('play-prompt').innerHTML = `选好了吗？主子在看着你哦~`;
+        document.getElementById('play-prompt').innerHTML = `拼好啦？猫猫正用温柔的目光注视着你哦~`;
     }
 
     function showGrammarAndNext() {
@@ -720,7 +720,7 @@
         if (allCorrect) {
             currentCorrectCount++;
             document.getElementById('play-progress').style.width = `${(currentCorrectCount / targetCorrect) * 100}%`;
-            document.getElementById('play-prompt').innerHTML = `答对啦！主子赏你一个呼噜噜 🐾 (进度: ${currentCorrectCount}/${targetCorrect})`;
+            document.getElementById('play-prompt').innerHTML = `完全正确！猫猫开心地蹭了蹭你 🐾 (温暖进度: ${currentCorrectCount}/${targetCorrect})`;
             
             if(currentAttempts === 0) currentCard.level = Math.min(currentCard.level + 1, SRS_INTERVALS.length - 1);
             currentCard.nextReview = Date.now() + SRS_INTERVALS[currentCard.level] * 24 * 60 * 60 * 1000;
@@ -733,11 +733,11 @@
             currentCard.nextReview = Date.now() + 10 * 60 * 1000; 
 
             if (currentAttempts >= 3) {
-                document.getElementById('play-prompt').innerHTML = `主子等得不耐烦啦，正确答案和语法在这里！`;
+                document.getElementById('play-prompt').innerHTML = `没关系，稍微休息一下。猫猫悄悄把原本的样子和语法叼来啦！`;
                 autoAssemble();
                 showGrammarAndNext();
             } else {
-                document.getElementById('play-prompt').innerHTML = `哎呀，排错啦！再试试看？(第 ${currentAttempts}/3 次尝试)`;
+                document.getElementById('play-prompt').innerHTML = `哎呀，好像有一点点偏差呢。别着急，再试一次吧？(第 ${currentAttempts}/3 次尝试)`;
             }
         }
         saveData();
@@ -751,7 +751,7 @@
         currentCard.nextReview = Date.now() + 10 * 60 * 1000;
         saveData();
 
-        document.getElementById('play-prompt').innerHTML = `跳过啦！先来看看正确答案和语法吧~`;
+        document.getElementById('play-prompt').innerHTML = `没关系，先跳过这句。我们一起来看看它原本的样子和语法吧~`;
         autoAssemble();
         showGrammarAndNext();
     }
@@ -773,7 +773,7 @@
         }
         
         saveData();
-        document.getElementById('play-prompt').innerHTML = `太棒啦！今日份的连胜条件（对 ${targetCorrect} 题）已达成，成功点燃火花！😽🔥`;
+        document.getElementById('play-prompt').innerHTML = `太棒啦！今日份的相伴目标（找回 ${targetCorrect} 句）已达成，成功点燃了温暖的火花！😽🔥`;
         document.getElementById('answer-zone').innerHTML = '';
         document.getElementById('word-pool').innerHTML = '';
         document.getElementById('play-translation').innerText = '';
@@ -800,7 +800,7 @@
         allMistakes.sort((a, b) => b.card.mistakes - a.card.mistakes);
 
         if (allMistakes.length === 0) {
-            list.innerHTML = '<p style="text-align:center; color:#7F8C8D; padding:20px;">主子对你非常满意，没有任何错题记录哦！</p>';
+            list.innerHTML = '<p style="text-align:center; color:#7F8C8D; padding:20px;">小猫轻轻蹭了蹭你，这里目前没有任何迷路的句子，你做得很棒！</p>';
         } else {
             allMistakes.forEach(item => {
                 const li = document.createElement('li');
@@ -815,7 +815,7 @@
                         <span style="font-size: 14px; color: #555;">(${item.card.translation || '暂无翻译'})</span>
                     </div>
                     <div style="background: var(--light-red); padding: 5px 10px; border-radius: 8px; border: 1px solid var(--black); font-size: 14px; text-align: center;">
-                        惹怒猫猫<br>${item.card.mistakes} 次
+                        偶尔迷路<br>${item.card.mistakes} 次
                     </div>
                 `;
                 list.appendChild(li);
