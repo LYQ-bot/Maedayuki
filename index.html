@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>喵喵语记 - 你的专属语言猫</title>
+<style>
+    :root {
+        --light-blue: #D6EAF8;
+        --light-blue-hover: #AED6F1;
+        --light-yellow: #FCF3CF;
+        --light-green: #D5F5E3;
+        --light-red: #FADBD8;
+        --black: #2C3E50;
+        --white: #FFFFFF;
+        --bg-color: #F8F9FA;
+        --flame-on: #FF5733;
+        --flame-off: #BDC3C7;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Microsoft YaHei'; }
+    body { background-color: var(--bg-color); color: var(--black); min-height: 100vh; overflow-x: hidden; }
+    
+    /* Utility & Layout */
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; position: relative; }
+    .hidden { display: none !important; }
+    .btn { background: var(--light-yellow); border: 2px solid var(--black); border-radius: 12px; padding: 10px 20px; font-size: 16px; font-weight: bold; cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; box-shadow: 2px 2px 0 var(--black); color: var(--black); display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--black); }
+    .btn-blue { background: var(--light-blue); }
+    .btn-green { background: var(--light-green); }
+    
+    /* Quick Play Button */
+    .btn-quick-play {
+        background: var(--light-yellow);
+        border: 2px solid var(--black);
+        border-radius: 20px;
+        padding: 6px 12px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 2px 2px 0 var(--black);
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-left: 15px;
+        transition: transform 0.1s, box-shadow 0.1s;
+        color: var(--black);
+        flex-shrink: 0;
+    }
+    .btn-quick-play:active {
+        transform: translate(2px, 2px);
+        box-shadow: 0 0 0 var(--black);
+    }
+
+    /* Header & Fire Streak */
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--white); padding: 15px; border-radius: 16px; border: 2px solid var(--black); box-shadow: 4px 4px 0 var(--black); }
+    .title-area h1 { font-size: 20px; display: flex; align-items: center; gap: 10px; }
+    .streak-area { display: flex; align-items: center; gap: 5px; font-weight: bold; font-size: 18px; white-space: nowrap; }
+    .flame-icon { width: 24px; height: 24px; transition: fill 0.3s; }
+    .flame-active { fill: var(--flame-on); }
+    .flame-inactive { fill: var(--flame-off); }
+
+    /* Views */
+    .view-section { background: var(--white); padding: 20px; border-radius: 16px; border: 2px solid var(--black); box-shadow: 4px 4px 0 var(--black); margin-bottom: 20px; animation: popIn 0.3s ease-out; position: relative;}
+    @keyframes popIn { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
+
+    /* Lists */
+    .collection-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+    .collection-item { background: var(--light-blue); border: 2px solid var(--black); border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center; transition: transform 0.2s; }
+    .collection-item:hover { transform: translateX(3px); }
+    .collection-info { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
+    .collection-right { display: flex; align-items: center; }
+    
+    /* Sentence Library Items */
+    .sentence-item {
+        background: var(--bg-color);
+        border: 2px solid var(--black);
+        border-radius: 10px;
+        padding: 10px;
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        transition: background 0.2s;
+    }
+    .sentence-input { flex: 1; padding: 6px; border: 2px solid var(--black); border-radius: 6px; font-size: 14px; outline: none; margin: 0; }
+
+    /* Inputs */
+    textarea, input[type="text"] { width: 100%; border: 2px solid var(--black); border-radius: 12px; padding: 10px; font-size: 16px; outline: none; background: var(--white); margin-top: 10px;}
+    textarea { resize: vertical; min-height: 100px; }
+    
+    /* Game Area */
+    .cat-prompt { display: flex; align-items: flex-end; gap: 15px; margin-bottom: 20px; position: relative; }
+    .cat-avatar { width: 80px; height: 80px; flex-shrink: 0;}
+    .speech-bubble { background: var(--white); border: 2px solid var(--black); border-radius: 16px; border-bottom-left-radius: 0; padding: 12px; font-weight: bold; position: relative; flex: 1; box-shadow: 2px 2px 0 var(--black); }
+    
+    .drop-zone { min-height: 80px; background: #f0f0f0; border: 2px dashed #bdc3c7; border-radius: 12px; padding: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; margin-bottom: 20px; transition: background 0.3s;}
+    .drop-zone.active-drag { background: var(--light-yellow); border-color: var(--black); }
+    
+    .word-pool { display: flex; flex-wrap: wrap; gap: 10px; min-height: 80px; padding: 10px 0; }
+    
+    /* Word Blocks */
+    .word-block { background: var(--light-blue); border: 2px solid var(--black); border-radius: 10px; padding: 8px 14px; font-size: 18px; font-weight: bold; cursor: pointer; user-select: none; box-shadow: 0 3px 0 var(--black); transition: transform 0.1s, background-color 0.3s; position: relative; color: var(--black); }
+    .word-block:active { transform: translateY(3px); box-shadow: 0 0 0 var(--black); }
+    .word-block.dragging { opacity: 0.5; }
+    
+    /* Status Colors for Blocks */
+    .word-block.correct { background: var(--light-green) !important; color: var(--black); }
+    .word-block.wrong { background: var(--light-red) !important; color: var(--black); animation: shake 0.4s; }
+    
+    /* Ruby (Jyutping) styles */
+    ruby { ruby-align: center; }
+    rt { font-size: 0.6em; color: #555; font-weight: normal; margin-bottom: -2px;}
+
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+    /* Progress Bar */
+    .progress-bar-container { width: 100%; background: #e0e0e0; border-radius: 10px; height: 12px; margin-bottom: 20px; border: 2px solid var(--black); overflow: hidden;}
+    .progress-bar { height: 100%; background: var(--light-green); width: 0%; transition: width 0.3s ease; }
+
+    /* Nav bar bottom */
+    .bottom-nav { display: flex; justify-content: space-around; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="title-area">
+            <svg class="cat-avatar" style="width:36px;height:36px" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="45" fill="var(--light-yellow)" stroke="var(--black)" stroke-width="4"/>
+                <path d="M25 45 L35 20 L50 35 L65 20 L75 45" fill="var(--light-yellow)" stroke="var(--black)" stroke-width="4" stroke-linejoin="round"/>
+                <circle cx="35" cy="55" r="4" fill="var(--black)"/>
+                <circle cx="65" cy="55" r="4" fill="var(--black)"/>
+                <path d="M45 65 Q50 70 55 65" stroke="var(--black)" stroke-width="3" stroke-linecap="round" fill="none"/>
+            </svg>
+            <h1>喵喵语记</h1>
+        </div>
+        <div class="streak-area">
+            <svg class="flame-icon flame-inactive" id="global-streak-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C12 2 7 7.5 7 13C7 15.7614 9.23858 18 12 18C14.7614 18 17 15.7614 17 13C17 7.5 12 2 12 2ZM12 22C8.68629 22 6 19.3137 6 16C6 11.5 12 4 12 4C12 4 18 11.5 18 16C18 19.3137 15.3137 22 12 22Z"/>
+                <path d="M12 16C10.8954 16 10 15.1046 10 14C10 12.8954 12 10 12 10C12 10 14 12.8954 14 14C14 15.1046 13.1046 16 12 16Z" fill="#FFF"/>
+            </svg>
+            <span id="global-streak-text" style="font-size: 14px;">全局最高: 0 天</span>
+        </div>
+    </header>
+
+    <div id="view-home" class="view-section">
+        <h2>你的猫窝 (语集)</h2>
+        <ul class="collection-list" id="collection-list">
+        </ul>
+        <div style="margin-top: 15px; text-align: center;">
+            <button class="btn btn-blue" onclick="showCreateCollection()">+ 收养新语集</button>
+        </div>
+        <div class="bottom-nav">
+            <button class="btn" onclick="showMistakes()">😾 猫猫记仇本 (错题)</button>
+        </div>
+    </div>
+
+    <div id="view-edit" class="view-section hidden">
+        <button class="btn" style="padding: 5px 10px; margin-bottom: 10px;" onclick="navTo('view-home')">🔙 返回</button>
+        <h2 id="edit-title">装扮新语集</h2>
+        <input type="text" id="col-name" placeholder="给语集起个可爱的名字，比如：摸鱼日语">
+        <input type="text" id="col-icon" placeholder="输入Emoji图标" style="width: 130px; margin-top:10px;">
+        
+        <h3 style="margin-top: 20px;">喂食新词句 (一行一句)</h3>
+        <p style="font-size: 14px; font-weight: bold; color: var(--black); margin-top: 5px;">喵仓已有猫粮：<span id="col-count" style="color:var(--flame-on);">0</span> 句</p>
+        <p style="font-size: 12px; color: #666; margin-top: 5px;">*新输入的句子将追加到猫仓中。支持中/英/日/韩/粤。粤语拼音请用括号，如：我(ngo5)係(hai6)猫(maau1)。</p>
+        <textarea id="col-sentences" placeholder="在这里输入你要追加练习的新句子！一行代表一句话。每次保存会自动添加到已有猫仓中哦。"></textarea>
+        
+        <div style="margin-top: 15px; display: flex; gap: 10px;">
+            <button class="btn btn-green" onclick="saveCollection()">💾 保存并追加</button>
+        </div>
+
+        <h3 style="margin-top: 25px; border-top: 2px dashed var(--black); padding-top: 15px;">已存猫粮 (点击修改或删除)</h3>
+        <div id="existing-sentences-list" style="margin-top: 10px;"></div>
+    </div>
+
+    <div id="view-play" class="view-section hidden">
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="play-progress"></div>
+        </div>
+        
+        <div class="cat-prompt">
+            <svg class="cat-avatar" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="45" fill="var(--light-blue)" stroke="var(--black)" stroke-width="4"/>
+                <path d="M25 45 L35 20 L50 35 L65 20 L75 45" fill="var(--light-blue)" stroke="var(--black)" stroke-width="4" stroke-linejoin="round"/>
+                <circle cx="35" cy="55" r="5" fill="var(--black)"/>
+                <circle cx="65" cy="55" r="5" fill="var(--black)"/>
+                <path d="M45 70 Q50 75 55 70" stroke="var(--black)" stroke-width="3" stroke-linecap="round" fill="none"/>
+                <ellipse cx="25" cy="65" rx="6" ry="4" fill="var(--light-red)" opacity="0.6"/>
+                <ellipse cx="75" cy="65" rx="6" ry="4" fill="var(--light-red)" opacity="0.6"/>
+            </svg>
+            <div class="speech-bubble" id="play-prompt">把下面的词块拼成完整的句子哄哄我吧！</div>
+        </div>
+
+        <div class="drop-zone" id="answer-zone"></div>
+        <div class="word-pool" id="word-pool"></div>
+
+        <div style="margin-top: 20px; display: flex; justify-content: space-between;">
+            <button class="btn" onclick="navTo('view-home')">🏃 溜了溜了</button>
+            <button class="btn btn-green" id="btn-check" onclick="checkAnswer()" disabled>🐾 猫猫验收</button>
+        </div>
+    </div>
+
+    <div id="view-mistakes" class="view-section hidden">
+        <button class="btn" style="padding: 5px 10px; margin-bottom: 10px;" onclick="navTo('view-home')">🔙 返回</button>
+        <h2>😾 猫猫记仇本</h2>
+        <p style="font-size: 14px; margin-bottom: 10px;">这些是你最近惹主子不高兴的句子，它们会在你以后的“撸猫”中频繁出现哦！</p>
+        <ul class="collection-list" id="mistake-list">
+        </ul>
+    </div>
+</div>
+
+<script>
+    // --- Data Storage & State ---
+    let collections = JSON.parse(localStorage.getItem('miao_data')) || {};
+    let currentCollectionId = null;
+    
+    // Play state
+    let playQueue = [];
+    let currentCardIndex = 0;
+    let currentChunks = []; 
+    let currentAttempts = 0; 
+
+    // Ebbinghaus intervals in days (Level 0 to 5)
+    const SRS_INTERVALS = [0, 1, 2, 4, 7, 15, 30]; 
+
+    function saveData() {
+        localStorage.setItem('miao_data', JSON.stringify(collections));
+        updateGlobalStreak();
+    }
+
+    // --- Utility: Segmentation & Parsing ---
+    function parseToRubyText(text) {
+        const regex = /([^\(\)]+)\(([^\)]+)\)/g;
+        if (!regex.test(text)) return text;
+        return text.replace(regex, "<ruby>$1<rt>$2</rt></ruby>");
+    }
+
+    function removeRubyForLength(text) {
+        return text.replace(/<rt>.*?<\/rt>/g, '').replace(/<ruby>|<\/ruby>/g, '');
+    }
+
+    function segmentSentence(sentence) {
+        if (sentence.includes('、')) {
+            return sentence.split('、').filter(s => s.trim().length > 0).map(parseToRubyText);
+        }
+        let words = [];
+        try {
+            const segmenter = new Intl.Segmenter(undefined, { granularity: 'word' });
+            words = Array.from(segmenter.segment(sentence)).map(s => s.segment).filter(s => s.trim().length > 0);
+        } catch(e) {
+            words = sentence.match(/[\u4e00-\u9fa5]|[\w']+|[^\s\w\u4e00-\u9fa5]+/g) || [sentence];
+        }
+
+        while (words.length > 7) {
+            let minLen = Infinity;
+            let minIdx = 0;
+            for(let i=0; i<words.length-1; i++) {
+                let len = removeRubyForLength(words[i]).length + removeRubyForLength(words[i+1]).length;
+                if(len < minLen) {
+                    minLen = len;
+                    minIdx = i;
+                }
+            }
+            words[minIdx] = words[minIdx] + words[minIdx+1];
+            words.splice(minIdx+1, 1);
+        }
+        
+        if (words.length === 1 && words[0].length > 1) {
+            let half = Math.ceil(words[0].length / 2);
+            words = [words[0].slice(0, half), words[0].slice(half)];
+        }
+        return words.map(parseToRubyText);
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    // --- View Navigation ---
+    function navTo(viewId) {
+        document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+        document.getElementById(viewId).classList.remove('hidden');
+        if(viewId === 'view-home') renderHome();
+    }
+
+    // --- Home & Streak ---
+    function updateGlobalStreak() {
+        let maxGlobalStreak = 0;
+        const today = new Date().toDateString();
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+        let isAnyStreakActiveToday = false;
+
+        Object.values(collections).forEach(col => {
+            let activeStreak = col.streakCount || 0;
+            if (col.lastPlayDate !== today && col.lastPlayDate !== yesterday) {
+                activeStreak = 0; 
+            }
+            if (col.lastPlayDate === today) {
+                isAnyStreakActiveToday = true;
+            }
+            maxGlobalStreak = Math.max(maxGlobalStreak, activeStreak); 
+        });
+
+        const icon = document.getElementById('global-streak-icon');
+        const text = document.getElementById('global-streak-text');
+        
+        if (isAnyStreakActiveToday) {
+            icon.classList.remove('flame-inactive');
+            icon.classList.add('flame-active');
+            text.style.color = "var(--flame-on)";
+        } else {
+            icon.classList.remove('flame-active');
+            icon.classList.add('flame-inactive');
+            text.style.color = "var(--flame-off)";
+        }
+        text.innerText = `全局最高: ${maxGlobalStreak} 天`;
+    }
+
+    function renderHome() {
+        const list = document.getElementById('collection-list');
+        list.innerHTML = '';
+        const cols = Object.values(collections);
+        const today = new Date().toDateString();
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+        
+        if(cols.length === 0) {
+            list.innerHTML = '<p style="text-align:center; color:#7F8C8D; padding:20px;">还没有领养任何语集哦，快点击下方按钮吧！</p>';
+        } else {
+            cols.forEach(col => {
+                const li = document.createElement('li');
+                li.className = 'collection-item';
+                const dueCount = getDueCards(col).length;
+                
+                let isToday = (col.lastPlayDate === today);
+                let displayStreak = col.streakCount || 0;
+                if (col.lastPlayDate !== today && col.lastPlayDate !== yesterday) {
+                    displayStreak = 0;
+                }
+                const flameClass = isToday ? 'flame-active' : 'flame-inactive';
+                const textColor = isToday ? 'var(--flame-on)' : 'var(--flame-off)';
+
+                li.innerHTML = `
+                    <div class="collection-info" onclick="editCollection('${col.id}')" style="flex:1; overflow:hidden;">
+                        <span style="font-size:24px;">${col.icon || '📦'}</span>
+                        <div style="display:flex; flex-direction:column; overflow:hidden;">
+                            <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${col.name}</span>
+                            <span style="font-size:12px; font-weight:normal; color:#555; margin-top:3px;">共 ${col.cards.length} 句 | 需复习: ${dueCount}</span>
+                        </div>
+                    </div>
+                    <div class="collection-right">
+                        <div class="streak-area" style="font-size: 14px; margin-left: 10px;">
+                            <svg class="flame-icon ${flameClass}" style="width:20px;height:20px;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2C12 2 7 7.5 7 13C7 15.7614 9.23858 18 12 18C14.7614 18 17 15.7614 17 13C17 7.5 12 2 12 2ZM12 22C8.68629 22 6 19.3137 6 16C6 11.5 12 4 12 4C12 4 18 11.5 18 16C18 19.3137 15.3137 22 12 22Z"/>
+                                <path d="M12 16C10.8954 16 10 15.1046 10 14C10 12.8954 12 10 12 10C12 10 14 12.8954 14 14C14 15.1046 13.1046 16 12 16Z" fill="#FFF"/>
+                            </svg>
+                            <span style="color: ${textColor}">${displayStreak} 天</span>
+                        </div>
+                        <button class="btn-quick-play" onclick="quickStartPlay(event, '${col.id}')">
+                            <svg width="20" height="20" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="50" cy="50" r="45" fill="#fff" stroke="var(--black)" stroke-width="4"/>
+                                <path d="M25 45 L35 20 L50 35 L65 20 L75 45" fill="#fff" stroke="var(--black)" stroke-width="4" stroke-linejoin="round"/>
+                                <circle cx="35" cy="55" r="4" fill="var(--black)"/>
+                                <circle cx="65" cy="55" r="4" fill="var(--black)"/>
+                                <path d="M45 65 Q50 70 55 65" stroke="var(--black)" stroke-width="3" stroke-linecap="round" fill="none"/>
+                            </svg>
+                            撸猫
+                        </button>
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+        updateGlobalStreak();
+    }
+
+    // --- Collection Management ---
+    function showCreateCollection() {
+        currentCollectionId = Date.now().toString();
+        document.getElementById('edit-title').innerText = "装扮新语集";
+        document.getElementById('col-name').value = '';
+        document.getElementById('col-icon').value = '🐈';
+        document.getElementById('col-sentences').value = ''; 
+        document.getElementById('col-count').innerText = "0";
+        document.getElementById('existing-sentences-list').innerHTML = '<p style="font-size: 14px; color: #666;">喵仓空空如也，先保存并追加喂食吧~</p>';
+        navTo('view-edit');
+    }
+
+    function editCollection(id) {
+        currentCollectionId = id;
+        const col = collections[id];
+        document.getElementById('edit-title').innerText = "管理与投喂猫粮";
+        document.getElementById('col-name').value = col.name;
+        document.getElementById('col-icon').value = col.icon;
+        
+        document.getElementById('col-sentences').value = ''; 
+        document.getElementById('col-count').innerText = col.cards.length; 
+        
+        renderExistingSentences();
+        navTo('view-edit');
+    }
+
+    // 渲染已有句子库以供编辑
+    function renderExistingSentences() {
+        const list = document.getElementById('existing-sentences-list');
+        list.innerHTML = '';
+        const col = collections[currentCollectionId];
+        
+        if(!col || !col.cards || col.cards.length === 0) {
+            list.innerHTML = '<p style="font-size: 14px; color: #666;">喵仓空空如也，赶快在上方投喂吧~</p>';
+            return;
+        }
+
+        col.cards.forEach(card => {
+            const div = document.createElement('div');
+            div.className = 'sentence-item';
+
+            // 文本显示区域
+            const textSpan = document.createElement('span');
+            textSpan.innerHTML = card.text; 
+            textSpan.style.flex = "1";
+            textSpan.style.fontSize = "15px";
+            textSpan.style.wordBreak = "break-all";
+
+            // 按钮操作组
+            const btnGroup = document.createElement('div');
+            btnGroup.style.display = 'flex';
+            btnGroup.style.gap = '5px';
+
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn btn-blue';
+            editBtn.style.padding = '4px 8px';
+            editBtn.style.fontSize = '12px';
+            editBtn.innerText = '✏️ 修改';
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'btn';
+            delBtn.style.padding = '4px 8px';
+            delBtn.style.fontSize = '12px';
+            delBtn.innerText = '🗑️';
+
+            // 修改模式下的 UI
+            const editContainer = document.createElement('div');
+            editContainer.style.display = 'none';
+            editContainer.style.flex = '1';
+            editContainer.style.gap = '8px';
+            editContainer.style.alignItems = 'center';
+
+            const inputField = document.createElement('input');
+            inputField.type = 'text';
+            inputField.className = 'sentence-input';
+            inputField.value = card.text;
+
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'btn btn-green';
+            saveBtn.style.padding = '4px 8px';
+            saveBtn.style.fontSize = '12px';
+            saveBtn.innerText = '💾 保存';
+
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'btn';
+            cancelBtn.style.padding = '4px 8px';
+            cancelBtn.style.fontSize = '12px';
+            cancelBtn.innerText = '取消';
+
+            // 交互逻辑
+            editBtn.onclick = () => {
+                textSpan.style.display = 'none';
+                btnGroup.style.display = 'none';
+                editContainer.style.display = 'flex';
+            };
+
+            cancelBtn.onclick = () => {
+                textSpan.style.display = 'block';
+                btnGroup.style.display = 'flex';
+                editContainer.style.display = 'none';
+                inputField.value = card.text; // 恢复原状
+            };
+
+            saveBtn.onclick = () => {
+                const newText = inputField.value.trim();
+                if (newText && newText !== card.text) {
+                    card.text = newText;
+                    card.chunks = segmentSentence(newText); // 按照分词规则重新分词
+                    saveData();
+                }
+                renderExistingSentences();
+            };
+
+            delBtn.onclick = () => {
+                if(confirm('确定要扔掉这句猫粮吗？')) {
+                    col.cards = col.cards.filter(c => c.id !== card.id);
+                    document.getElementById('col-count').innerText = col.cards.length;
+                    saveData();
+                    renderExistingSentences();
+                }
+            };
+
+            editContainer.appendChild(inputField);
+            editContainer.appendChild(saveBtn);
+            editContainer.appendChild(cancelBtn);
+
+            btnGroup.appendChild(editBtn);
+            btnGroup.appendChild(delBtn);
+
+            div.appendChild(textSpan);
+            div.appendChild(btnGroup);
+            div.appendChild(editContainer);
+
+            list.appendChild(div);
+        });
+    }
+
+    function saveCollection() {
+        const name = document.getElementById('col-name').value || '未命名猫窝';
+        const icon = document.getElementById('col-icon').value || '🐈';
+        const text = document.getElementById('col-sentences').value;
+        
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        
+        const existingCol = collections[currentCollectionId];
+        const existingCards = existingCol ? existingCol.cards : [];
+        
+        // 追加输入框中的新句子
+        let newCards = lines.map((line, idx) => {
+            if (existingCards.find(c => c.text === line)) return null; 
+            return {
+                id: Date.now().toString() + "_" + idx,
+                text: line,
+                chunks: segmentSentence(line),
+                level: 0,
+                nextReview: Date.now(),
+                mistakes: 0
+            };
+        }).filter(c => c !== null); 
+
+        const updatedCards = [...existingCards, ...newCards];
+
+        collections[currentCollectionId] = {
+            id: currentCollectionId,
+            name: name,
+            icon: icon,
+            streakCount: existingCol ? existingCol.streakCount : 0,
+            lastPlayDate: existingCol ? existingCol.lastPlayDate : null,
+            cards: updatedCards
+        };
+        
+        saveData();
+        navTo('view-home');
+    }
+
+    // --- SRS & Play Logic ---
+    function getDueCards(collection) {
+        const now = Date.now();
+        return collection.cards.filter(c => c.nextReview <= now || c.level === 0)
+                               .sort((a, b) => b.mistakes - a.mistakes || a.nextReview - b.nextReview);
+    }
+
+    // 快捷撸猫入口
+    function quickStartPlay(event, colId) {
+        event.stopPropagation(); // 阻止触发外层的 editCollection
+        currentCollectionId = colId;
+        startPlaySession();
+    }
+
+    function startPlaySession() {
+        const col = collections[currentCollectionId];
+        if (!col || col.cards.length === 0) {
+            alert("这个猫窝还没有喂食（句子）哦，先添加一些吧！");
+            return;
+        }
+
+        let dueCards = getDueCards(col);
+        if (dueCards.length === 0) {
+            dueCards = [...col.cards].sort(() => 0.5 - Math.random());
+        }
+
+        playQueue = dueCards.slice(0, 5);
+        currentCardIndex = 0;
+        document.getElementById('play-progress').style.width = '0%';
+        navTo('view-play');
+        loadNextCard();
+    }
+
+    function loadNextCard() {
+        if (currentCardIndex >= playQueue.length) {
+            finishSession();
+            return;
+        }
+
+        currentAttempts = 0;
+        const card = playQueue[currentCardIndex];
+        let originalChunks = card.chunks.map((html, idx) => ({ id: `c_${idx}`, html: html, originalIdx: idx }));
+        currentChunks = shuffleArray([...originalChunks]);
+
+        document.getElementById('play-prompt').innerHTML = `将散落的毛线球（词块）连起来吧！<br><span style="font-size:12px;color:#666;">* 第 ${currentCardIndex + 1} / ${playQueue.length} 题</span>`;
+        
+        document.getElementById('answer-zone').innerHTML = '';
+        const pool = document.getElementById('word-pool');
+        pool.innerHTML = '';
+        
+        currentChunks.forEach(chunk => {
+            pool.appendChild(createWordBlock(chunk));
+        });
+
+        checkSubmitState();
+    }
+
+    // --- Drag & Drop & Click Interaction ---
+    let draggedElement = null;
+
+    function createWordBlock(chunk) {
+        const div = document.createElement('div');
+        div.className = 'word-block';
+        div.innerHTML = chunk.html;
+        div.dataset.id = chunk.id;
+        div.dataset.oid = chunk.originalIdx;
+        
+        // 去掉了猫猫脚印生成代码，维持干净视觉
+
+        div.draggable = true;
+
+        div.addEventListener('click', (e) => {
+            const parentId = div.parentElement.id;
+            if (parentId === 'word-pool') {
+                document.getElementById('answer-zone').appendChild(div);
+            } else {
+                document.getElementById('word-pool').appendChild(div);
+                div.classList.remove('wrong');
+            }
+            checkSubmitState();
+        });
+
+        div.addEventListener('dragstart', (e) => {
+            draggedElement = div;
+            setTimeout(() => div.classList.add('dragging'), 0);
+            document.getElementById('answer-zone').classList.add('active-drag');
+        });
+
+        div.addEventListener('dragend', () => {
+            draggedElement.classList.remove('dragging');
+            draggedElement = null;
+            document.getElementById('answer-zone').classList.remove('active-drag');
+            checkSubmitState();
+        });
+
+        return div;
+    }
+
+    const answerZone = document.getElementById('answer-zone');
+    answerZone.addEventListener('dragover', e => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(answerZone, e.clientX, e.clientY);
+        if (afterElement == null) {
+            answerZone.appendChild(draggedElement);
+        } else {
+            answerZone.insertBefore(draggedElement, afterElement);
+        }
+    });
+
+    const poolZone = document.getElementById('word-pool');
+    poolZone.addEventListener('dragover', e => {
+        e.preventDefault();
+        poolZone.appendChild(draggedElement);
+    });
+
+    function getDragAfterElement(container, x, y) {
+        const draggableElements = [...container.querySelectorAll('.word-block:not(.dragging)')];
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offsetX = x - box.left - box.width / 2;
+            const offsetY = y - box.top - box.height / 2;
+            
+            if (offsetY < box.height && offsetY > -box.height) {
+                 if (offsetX < 0 && offsetX > closest.offset) {
+                    return { offset: offsetX, element: child };
+                 }
+            }
+            return closest;
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    function checkSubmitState() {
+        const poolEmpty = document.getElementById('word-pool').children.length === 0;
+        document.getElementById('btn-check').disabled = !poolEmpty;
+        
+        const blocks = document.getElementById('answer-zone').children;
+        for(let b of blocks) {
+            b.classList.remove('wrong', 'correct');
+        }
+        document.getElementById('play-prompt').innerHTML = `选好了吗？主子在看着你哦~`;
+    }
+
+    // --- Checking Logic ---
+    function checkAnswer() {
+        const blocks = [...document.getElementById('answer-zone').children];
+        const currentCard = playQueue[currentCardIndex];
+        
+        let allCorrect = true;
+        
+        blocks.forEach((block, idx) => {
+            if (parseInt(block.dataset.oid) === idx) {
+                block.classList.add('correct');
+                block.classList.remove('wrong');
+            } else {
+                block.classList.add('wrong');
+                block.classList.remove('correct');
+                allCorrect = false;
+            }
+        });
+
+        if (allCorrect) {
+            document.getElementById('play-prompt').innerHTML = `答对啦！主子赏你一个呼噜噜 🐾`;
+            
+            if(currentAttempts === 0) {
+                currentCard.level = Math.min(currentCard.level + 1, SRS_INTERVALS.length - 1);
+            }
+            currentCard.nextReview = Date.now() + SRS_INTERVALS[currentCard.level] * 24 * 60 * 60 * 1000;
+            
+            document.getElementById('play-progress').style.width = `${((currentCardIndex + 1) / playQueue.length) * 100}%`;
+            
+            setTimeout(() => {
+                currentCardIndex++;
+                loadNextCard();
+            }, 1000);
+            
+        } else {
+            currentAttempts++;
+            currentCard.mistakes++;
+            currentCard.level = Math.max(0, currentCard.level - 1);
+            currentCard.nextReview = Date.now() + 10 * 60 * 1000; 
+
+            if (currentAttempts >= 3) {
+                document.getElementById('play-prompt').innerHTML = `主子等得不耐烦啦，直接告诉你正确答案吧！`;
+                blocks.sort((a, b) => parseInt(a.dataset.oid) - parseInt(b.dataset.oid));
+                blocks.forEach(b => {
+                    answerZone.appendChild(b);
+                    b.classList.add('correct');
+                    b.classList.remove('wrong');
+                });
+                
+                setTimeout(() => {
+                    currentCardIndex++;
+                    loadNextCard();
+                }, 2500);
+
+            } else {
+                document.getElementById('play-prompt').innerHTML = `哎呀，排错啦！再试试看？(第 ${currentAttempts}/3 次尝试)`;
+            }
+        }
+        saveData();
+    }
+
+    function finishSession() {
+        const col = collections[currentCollectionId];
+        const today = new Date().toDateString();
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+        
+        if (col.lastPlayDate !== today) {
+            if (col.lastPlayDate === yesterday) {
+                col.streakCount = (col.streakCount || 0) + 1;
+            } else {
+                col.streakCount = 1; 
+            }
+            col.lastPlayDate = today;
+        }
+        
+        saveData();
+        
+        document.getElementById('play-prompt').innerHTML = `今日份的猫条喂食完毕！主子很满意！😽`;
+        document.getElementById('answer-zone').innerHTML = '';
+        document.getElementById('word-pool').innerHTML = '';
+        document.getElementById('btn-check').disabled = true;
+        
+        setTimeout(() => {
+            navTo('view-home');
+        }, 2000);
+    }
+
+    // --- Mistake Book ---
+    function showMistakes() {
+        const list = document.getElementById('mistake-list');
+        list.innerHTML = '';
+        
+        let allMistakes = [];
+        Object.values(collections).forEach(col => {
+            col.cards.forEach(card => {
+                if (card.mistakes > 0) {
+                    allMistakes.push({ colName: col.name, card: card });
+                }
+            });
+        });
+
+        allMistakes.sort((a, b) => b.card.mistakes - a.card.mistakes);
+
+        if (allMistakes.length === 0) {
+            list.innerHTML = '<p style="text-align:center; color:#7F8C8D; padding:20px;">主子对你非常满意，没有任何错题记录哦！</p>';
+        } else {
+            allMistakes.forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'collection-item';
+                li.style.cursor = 'default';
+                li.style.transform = 'none';
+                
+                const plainText = removeRubyForLength(item.card.text);
+
+                li.innerHTML = `
+                    <div style="display:flex; flex-direction:column; gap:5px;">
+                        <span style="font-size: 14px; color: #666;">来源: ${item.colName}</span>
+                        <span style="font-weight: bold; font-size: 16px;">${item.card.text}</span>
+                    </div>
+                    <div style="background: var(--light-red); padding: 5px 10px; border-radius: 8px; border: 1px solid var(--black); font-size: 14px;">
+                        连错 ${item.card.mistakes} 次
+                    </div>
+                `;
+                list.appendChild(li);
+            });
+        }
+        
+        navTo('view-mistakes');
+    }
+
+    // --- Initialization ---
+    window.onload = () => {
+        renderHome();
+    };
+
+</script>
+</body>
+</html>
