@@ -28,6 +28,7 @@
     .btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--black); }
     .btn-blue { background: var(--light-blue); }
     .btn-green { background: var(--light-green); }
+    .btn-small { padding: 4px 8px; font-size: 12px; border-radius: 8px; }
     
     /* Quick Play Button */
     .btn-quick-play {
@@ -47,10 +48,7 @@
         color: var(--black);
         flex-shrink: 0;
     }
-    .btn-quick-play:active {
-        transform: translate(2px, 2px);
-        box-shadow: 0 0 0 var(--black);
-    }
+    .btn-quick-play:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--black); }
 
     /* Header & Fire Streak */
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--white); padding: 15px; border-radius: 16px; border: 2px solid var(--black); box-shadow: 4px 4px 0 var(--black); }
@@ -73,30 +71,26 @@
     
     /* Sentence Library Items */
     .sentence-item {
-        background: var(--bg-color);
-        border: 2px solid var(--black);
-        border-radius: 10px;
-        padding: 10px;
-        margin-top: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-        transition: background 0.2s;
+        background: var(--bg-color); border: 2px solid var(--black); border-radius: 10px; padding: 12px; margin-top: 10px;
+        display: flex; flex-direction: column; gap: 10px; transition: background 0.2s;
     }
-    .sentence-input { flex: 1; padding: 6px; border: 2px solid var(--black); border-radius: 6px; font-size: 14px; outline: none; margin: 0; }
+    .sentence-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .sentence-input { width: 100%; padding: 6px; border: 2px solid var(--black); border-radius: 6px; font-size: 14px; outline: none; margin: 0; }
 
     /* Inputs */
     textarea, input[type="text"] { width: 100%; border: 2px solid var(--black); border-radius: 12px; padding: 10px; font-size: 16px; outline: none; background: var(--white); margin-top: 10px;}
-    textarea { resize: vertical; min-height: 100px; }
+    textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
     
     /* Game Area */
     .cat-prompt { display: flex; align-items: flex-end; gap: 15px; margin-bottom: 20px; position: relative; }
     .cat-avatar { width: 80px; height: 80px; flex-shrink: 0;}
     .speech-bubble { background: var(--white); border: 2px solid var(--black); border-radius: 16px; border-bottom-left-radius: 0; padding: 12px; font-weight: bold; position: relative; flex: 1; box-shadow: 2px 2px 0 var(--black); }
     
-    .drop-zone { min-height: 80px; background: #f0f0f0; border: 2px dashed #bdc3c7; border-radius: 12px; padding: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; margin-bottom: 20px; transition: background 0.3s;}
+    .drop-zone { min-height: 80px; background: #f0f0f0; border: 2px dashed #bdc3c7; border-radius: 12px; padding: 10px; display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; margin-bottom: 10px; transition: background 0.3s;}
     .drop-zone.active-drag { background: var(--light-yellow); border-color: var(--black); }
+    
+    .play-translation { text-align: center; font-size: 16px; font-weight: bold; color: #8E44AD; margin-bottom: 10px; }
+    .play-grammar { background: var(--light-yellow); border: 2px dashed #E67E22; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-size: 14px; line-height: 1.5; color: #D35400;}
     
     .word-pool { display: flex; flex-wrap: wrap; gap: 10px; min-height: 80px; padding: 10px 0; }
     
@@ -104,6 +98,7 @@
     .word-block { background: var(--light-blue); border: 2px solid var(--black); border-radius: 10px; padding: 8px 14px; font-size: 18px; font-weight: bold; cursor: pointer; user-select: none; box-shadow: 0 3px 0 var(--black); transition: transform 0.1s, background-color 0.3s; position: relative; color: var(--black); }
     .word-block:active { transform: translateY(3px); box-shadow: 0 0 0 var(--black); }
     .word-block.dragging { opacity: 0.5; }
+    .word-block.locked { pointer-events: none; opacity: 0.9; }
     
     /* Status Colors for Blocks */
     .word-block.correct { background: var(--light-green) !important; color: var(--black); }
@@ -148,8 +143,7 @@
 
     <div id="view-home" class="view-section">
         <h2>你的猫窝 (语集)</h2>
-        <ul class="collection-list" id="collection-list">
-        </ul>
+        <ul class="collection-list" id="collection-list"></ul>
         <div style="margin-top: 15px; text-align: center;">
             <button class="btn btn-blue" onclick="showCreateCollection()">+ 收养新语集</button>
         </div>
@@ -159,15 +153,18 @@
     </div>
 
     <div id="view-edit" class="view-section hidden">
-        <button class="btn" style="padding: 5px 10px; margin-bottom: 10px;" onclick="navTo('view-home')">🔙 返回</button>
+        <button class="btn btn-small" style="margin-bottom: 10px;" onclick="navTo('view-home')">🔙 返回</button>
         <h2 id="edit-title">装扮新语集</h2>
         <input type="text" id="col-name" placeholder="给语集起个可爱的名字，比如：摸鱼日语">
         <input type="text" id="col-icon" placeholder="输入Emoji图标" style="width: 130px; margin-top:10px;">
         
-        <h3 style="margin-top: 20px;">喂食新词句 (一行一句)</h3>
+        <h3 style="margin-top: 20px;">喂食新词句 (三行一组)</h3>
         <p style="font-size: 14px; font-weight: bold; color: var(--black); margin-top: 5px;">喵仓已有猫粮：<span id="col-count" style="color:var(--flame-on);">0</span> 句</p>
-        <p style="font-size: 12px; color: #666; margin-top: 5px;">*新输入的句子将追加到猫仓中。支持中/英/日/韩/粤。粤语拼音请用括号，如：我(ngo5)係(hai6)猫(maau1)。</p>
-        <textarea id="col-sentences" placeholder="在这里输入你要追加练习的新句子！一行代表一句话。每次保存会自动添加到已有猫仓中哦。"></textarea>
+        <p style="font-size: 12px; color: #666; margin-top: 5px; line-height: 1.4;">
+            *必须按3行一组输入，不可空行：<br>
+            第1行：原文<br>第2行：翻译<br>第3行：语法分析
+        </p>
+        <textarea id="col-sentences" placeholder="我是一只猫&#10;I am a cat.&#10;主语+系动词+表语&#10;她喜欢苹果&#10;She likes apples.&#10;一般现在时..."></textarea>
         
         <div style="margin-top: 15px; display: flex; gap: 10px;">
             <button class="btn btn-green" onclick="saveCollection()">💾 保存并追加</button>
@@ -189,27 +186,29 @@
                 <circle cx="35" cy="55" r="5" fill="var(--black)"/>
                 <circle cx="65" cy="55" r="5" fill="var(--black)"/>
                 <path d="M45 70 Q50 75 55 70" stroke="var(--black)" stroke-width="3" stroke-linecap="round" fill="none"/>
-                <ellipse cx="25" cy="65" rx="6" ry="4" fill="var(--light-red)" opacity="0.6"/>
-                <ellipse cx="75" cy="65" rx="6" ry="4" fill="var(--light-red)" opacity="0.6"/>
             </svg>
             <div class="speech-bubble" id="play-prompt">把下面的词块拼成完整的句子哄哄我吧！</div>
         </div>
 
         <div class="drop-zone" id="answer-zone"></div>
+        <div class="play-translation" id="play-translation"></div>
+        <div class="play-grammar hidden" id="play-grammar"></div>
         <div class="word-pool" id="word-pool"></div>
 
         <div style="margin-top: 20px; display: flex; justify-content: space-between;">
             <button class="btn" onclick="navTo('view-home')">🏃 溜了溜了</button>
-            <button class="btn btn-green" id="btn-check" onclick="checkAnswer()" disabled>🐾 猫猫验收</button>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-blue" id="btn-skip" onclick="skipAnswer()">⏭️ 跳过此句</button>
+                <button class="btn btn-green" id="btn-check" onclick="checkAnswer()" disabled>🐾 猫猫验收</button>
+                <button class="btn btn-green hidden" id="btn-next" onclick="onNextClicked()">➡️ 下一句</button>
+            </div>
         </div>
     </div>
 
     <div id="view-mistakes" class="view-section hidden">
-        <button class="btn" style="padding: 5px 10px; margin-bottom: 10px;" onclick="navTo('view-home')">🔙 返回</button>
+        <button class="btn btn-small" style="margin-bottom: 10px;" onclick="navTo('view-home')">🔙 返回</button>
         <h2>😾 猫猫记仇本</h2>
-        <p style="font-size: 14px; margin-bottom: 10px;">这些是你最近惹主子不高兴的句子，它们会在你以后的“撸猫”中频繁出现哦！</p>
-        <ul class="collection-list" id="mistake-list">
-        </ul>
+        <ul class="collection-list" id="mistake-list"></ul>
     </div>
 </div>
 
@@ -223,8 +222,11 @@
     let currentCardIndex = 0;
     let currentChunks = []; 
     let currentAttempts = 0; 
+    let targetCorrect = 5; // 对5题过关
+    let currentCorrectCount = 0;
+    let isAnswerRevealed = false; // 是否已经展示了答案和语法，等待点击下一句
 
-    // Ebbinghaus intervals in days (Level 0 to 5)
+    // Ebbinghaus intervals in days
     const SRS_INTERVALS = [0, 1, 2, 4, 7, 15, 30]; 
 
     function saveData() {
@@ -300,12 +302,8 @@
 
         Object.values(collections).forEach(col => {
             let activeStreak = col.streakCount || 0;
-            if (col.lastPlayDate !== today && col.lastPlayDate !== yesterday) {
-                activeStreak = 0; 
-            }
-            if (col.lastPlayDate === today) {
-                isAnyStreakActiveToday = true;
-            }
+            if (col.lastPlayDate !== today && col.lastPlayDate !== yesterday) activeStreak = 0; 
+            if (col.lastPlayDate === today) isAnyStreakActiveToday = true;
             maxGlobalStreak = Math.max(maxGlobalStreak, activeStreak); 
         });
 
@@ -313,12 +311,10 @@
         const text = document.getElementById('global-streak-text');
         
         if (isAnyStreakActiveToday) {
-            icon.classList.remove('flame-inactive');
-            icon.classList.add('flame-active');
+            icon.classList.remove('flame-inactive'); icon.classList.add('flame-active');
             text.style.color = "var(--flame-on)";
         } else {
-            icon.classList.remove('flame-active');
-            icon.classList.add('flame-inactive');
+            icon.classList.remove('flame-active'); icon.classList.add('flame-inactive');
             text.style.color = "var(--flame-off)";
         }
         text.innerText = `全局最高: ${maxGlobalStreak} 天`;
@@ -337,13 +333,12 @@
             cols.forEach(col => {
                 const li = document.createElement('li');
                 li.className = 'collection-item';
-                const dueCount = getDueCards(col).length;
+                const dueCount = col.cards.filter(c => c.nextReview <= Date.now() || c.level === 0).length;
                 
                 let isToday = (col.lastPlayDate === today);
                 let displayStreak = col.streakCount || 0;
-                if (col.lastPlayDate !== today && col.lastPlayDate !== yesterday) {
-                    displayStreak = 0;
-                }
+                if (col.lastPlayDate !== today && col.lastPlayDate !== yesterday) displayStreak = 0;
+                
                 const flameClass = isToday ? 'flame-active' : 'flame-inactive';
                 const textColor = isToday ? 'var(--flame-on)' : 'var(--flame-off)';
 
@@ -357,20 +352,14 @@
                     </div>
                     <div class="collection-right">
                         <div class="streak-area" style="font-size: 14px; margin-left: 10px;">
-                            <svg class="flame-icon ${flameClass}" style="width:20px;height:20px;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <svg class="flame-icon ${flameClass}" style="width:20px;height:20px;" viewBox="0 0 24 24">
                                 <path d="M12 2C12 2 7 7.5 7 13C7 15.7614 9.23858 18 12 18C14.7614 18 17 15.7614 17 13C17 7.5 12 2 12 2ZM12 22C8.68629 22 6 19.3137 6 16C6 11.5 12 4 12 4C12 4 18 11.5 18 16C18 19.3137 15.3137 22 12 22Z"/>
                                 <path d="M12 16C10.8954 16 10 15.1046 10 14C10 12.8954 12 10 12 10C12 10 14 12.8954 14 14C14 15.1046 13.1046 16 12 16Z" fill="#FFF"/>
                             </svg>
                             <span style="color: ${textColor}">${displayStreak} 天</span>
                         </div>
                         <button class="btn-quick-play" onclick="quickStartPlay(event, '${col.id}')">
-                            <svg width="20" height="20" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="50" cy="50" r="45" fill="#fff" stroke="var(--black)" stroke-width="4"/>
-                                <path d="M25 45 L35 20 L50 35 L65 20 L75 45" fill="#fff" stroke="var(--black)" stroke-width="4" stroke-linejoin="round"/>
-                                <circle cx="35" cy="55" r="4" fill="var(--black)"/>
-                                <circle cx="65" cy="55" r="4" fill="var(--black)"/>
-                                <path d="M45 65 Q50 70 55 65" stroke="var(--black)" stroke-width="3" stroke-linecap="round" fill="none"/>
-                            </svg>
+                            <svg width="20" height="20" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#fff" stroke="var(--black)" stroke-width="4"/><path d="M25 45 L35 20 L50 35 L65 20 L75 45" fill="#fff" stroke="var(--black)" stroke-width="4" stroke-linejoin="round"/><circle cx="35" cy="55" r="4" fill="var(--black)"/><circle cx="65" cy="55" r="4" fill="var(--black)"/><path d="M45 65 Q50 70 55 65" stroke="var(--black)" stroke-width="3" stroke-linecap="round" fill="none"/></svg>
                             撸猫
                         </button>
                     </div>
@@ -385,10 +374,8 @@
     function showCreateCollection() {
         currentCollectionId = Date.now().toString();
         document.getElementById('edit-title').innerText = "装扮新语集";
-        document.getElementById('col-name').value = '';
-        document.getElementById('col-icon').value = '🐈';
-        document.getElementById('col-sentences').value = ''; 
-        document.getElementById('col-count').innerText = "0";
+        document.getElementById('col-name').value = ''; document.getElementById('col-icon').value = '🐈';
+        document.getElementById('col-sentences').value = ''; document.getElementById('col-count').innerText = "0";
         document.getElementById('existing-sentences-list').innerHTML = '<p style="font-size: 14px; color: #666;">喵仓空空如也，先保存并追加喂食吧~</p>';
         navTo('view-edit');
     }
@@ -397,17 +384,12 @@
         currentCollectionId = id;
         const col = collections[id];
         document.getElementById('edit-title').innerText = "管理与投喂猫粮";
-        document.getElementById('col-name').value = col.name;
-        document.getElementById('col-icon').value = col.icon;
-        
-        document.getElementById('col-sentences').value = ''; 
-        document.getElementById('col-count').innerText = col.cards.length; 
-        
+        document.getElementById('col-name').value = col.name; document.getElementById('col-icon').value = col.icon;
+        document.getElementById('col-sentences').value = ''; document.getElementById('col-count').innerText = col.cards.length; 
         renderExistingSentences();
         navTo('view-edit');
     }
 
-    // 渲染已有句子库以供编辑
     function renderExistingSentences() {
         const list = document.getElementById('existing-sentences-list');
         list.innerHTML = '';
@@ -422,73 +404,57 @@
             const div = document.createElement('div');
             div.className = 'sentence-item';
 
-            // 文本显示区域
-            const textSpan = document.createElement('span');
-            textSpan.innerHTML = card.text; 
-            textSpan.style.flex = "1";
-            textSpan.style.fontSize = "15px";
-            textSpan.style.wordBreak = "break-all";
+            const header = document.createElement('div');
+            header.className = 'sentence-header';
 
-            // 按钮操作组
+            const textBlock = document.createElement('div');
+            textBlock.style.flex = "1";
+            textBlock.innerHTML = `<span style="font-size:16px; font-weight:bold; color:var(--black);">${card.text}</span> <span style="font-size:14px; color:#555;">(${card.translation || ''})</span>`;
+            
+            const gramBtn = document.createElement('button');
+            gramBtn.className = 'btn btn-small btn-blue';
+            gramBtn.innerText = '📖 语法';
+            
             const btnGroup = document.createElement('div');
-            btnGroup.style.display = 'flex';
-            btnGroup.style.gap = '5px';
+            btnGroup.style.display = 'flex'; btnGroup.style.gap = '5px';
+            const editBtn = document.createElement('button'); editBtn.className = 'btn btn-small btn-blue'; editBtn.innerText = '✏️ 修改';
+            const delBtn = document.createElement('button'); delBtn.className = 'btn btn-small'; delBtn.innerText = '🗑️';
 
-            const editBtn = document.createElement('button');
-            editBtn.className = 'btn btn-blue';
-            editBtn.style.padding = '4px 8px';
-            editBtn.style.fontSize = '12px';
-            editBtn.innerText = '✏️ 修改';
+            textBlock.appendChild(gramBtn);
+            btnGroup.appendChild(editBtn); btnGroup.appendChild(delBtn);
+            header.appendChild(textBlock); header.appendChild(btnGroup);
 
-            const delBtn = document.createElement('button');
-            delBtn.className = 'btn';
-            delBtn.style.padding = '4px 8px';
-            delBtn.style.fontSize = '12px';
-            delBtn.innerText = '🗑️';
+            const gramDiv = document.createElement('div');
+            gramDiv.className = 'hidden';
+            gramDiv.style.fontSize = '13px'; gramDiv.style.color = '#E67E22'; gramDiv.style.background = '#FFFDE7'; gramDiv.style.padding = '8px'; gramDiv.style.borderRadius = '6px';
+            gramDiv.innerHTML = `<strong>语法分析：</strong>${card.grammar || '无'}`;
+            
+            gramBtn.onclick = () => gramDiv.classList.toggle('hidden');
 
-            // 修改模式下的 UI
             const editContainer = document.createElement('div');
-            editContainer.style.display = 'none';
-            editContainer.style.flex = '1';
-            editContainer.style.gap = '8px';
-            editContainer.style.alignItems = 'center';
+            editContainer.style.display = 'none'; editContainer.style.flexDirection = 'column'; editContainer.style.gap = '8px';
 
-            const inputField = document.createElement('input');
-            inputField.type = 'text';
-            inputField.className = 'sentence-input';
-            inputField.value = card.text;
+            const inputT = document.createElement('input'); inputT.className = 'sentence-input'; inputT.value = card.text; inputT.placeholder = "原文";
+            const inputTr = document.createElement('input'); inputTr.className = 'sentence-input'; inputTr.value = card.translation || ''; inputTr.placeholder = "翻译";
+            const inputG = document.createElement('input'); inputG.className = 'sentence-input'; inputG.value = card.grammar || ''; inputG.placeholder = "语法";
 
-            const saveBtn = document.createElement('button');
-            saveBtn.className = 'btn btn-green';
-            saveBtn.style.padding = '4px 8px';
-            saveBtn.style.fontSize = '12px';
-            saveBtn.innerText = '💾 保存';
+            const actionRow = document.createElement('div');
+            actionRow.style.display = 'flex'; actionRow.style.gap = '10px';
+            const saveBtn = document.createElement('button'); saveBtn.className = 'btn btn-small btn-green'; saveBtn.innerText = '💾 保存';
+            const cancelBtn = document.createElement('button'); cancelBtn.className = 'btn btn-small'; cancelBtn.innerText = '取消';
+            actionRow.appendChild(saveBtn); actionRow.appendChild(cancelBtn);
 
-            const cancelBtn = document.createElement('button');
-            cancelBtn.className = 'btn';
-            cancelBtn.style.padding = '4px 8px';
-            cancelBtn.style.fontSize = '12px';
-            cancelBtn.innerText = '取消';
+            editContainer.append(inputT, inputTr, inputG, actionRow);
 
-            // 交互逻辑
-            editBtn.onclick = () => {
-                textSpan.style.display = 'none';
-                btnGroup.style.display = 'none';
-                editContainer.style.display = 'flex';
-            };
-
-            cancelBtn.onclick = () => {
-                textSpan.style.display = 'block';
-                btnGroup.style.display = 'flex';
-                editContainer.style.display = 'none';
-                inputField.value = card.text; // 恢复原状
-            };
+            editBtn.onclick = () => { header.style.display = 'none'; gramDiv.style.display = 'none'; editContainer.style.display = 'flex'; };
+            cancelBtn.onclick = () => { header.style.display = 'flex'; editContainer.style.display = 'none'; };
 
             saveBtn.onclick = () => {
-                const newText = inputField.value.trim();
-                if (newText && newText !== card.text) {
-                    card.text = newText;
-                    card.chunks = segmentSentence(newText); // 按照分词规则重新分词
+                if (inputT.value.trim() !== '') {
+                    card.text = inputT.value.trim();
+                    card.translation = inputTr.value.trim();
+                    card.grammar = inputG.value.trim();
+                    card.chunks = segmentSentence(card.text); 
                     saveData();
                 }
                 renderExistingSentences();
@@ -498,22 +464,11 @@
                 if(confirm('确定要扔掉这句猫粮吗？')) {
                     col.cards = col.cards.filter(c => c.id !== card.id);
                     document.getElementById('col-count').innerText = col.cards.length;
-                    saveData();
-                    renderExistingSentences();
+                    saveData(); renderExistingSentences();
                 }
             };
 
-            editContainer.appendChild(inputField);
-            editContainer.appendChild(saveBtn);
-            editContainer.appendChild(cancelBtn);
-
-            btnGroup.appendChild(editBtn);
-            btnGroup.appendChild(delBtn);
-
-            div.appendChild(textSpan);
-            div.appendChild(btnGroup);
-            div.appendChild(editContainer);
-
+            div.append(header, gramDiv, editContainer);
             list.appendChild(div);
         });
     }
@@ -525,21 +480,33 @@
         
         const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         
+        if (lines.length > 0 && lines.length % 3 !== 0) {
+            alert("喵！喂食格式不对哦！必须是【原文】、【翻译】、【语法】各占一行，总行数必须是3的倍数。请检查一下~");
+            return;
+        }
+        
         const existingCol = collections[currentCollectionId];
         const existingCards = existingCol ? existingCol.cards : [];
-        
-        // 追加输入框中的新句子
-        let newCards = lines.map((line, idx) => {
-            if (existingCards.find(c => c.text === line)) return null; 
-            return {
-                id: Date.now().toString() + "_" + idx,
-                text: line,
-                chunks: segmentSentence(line),
-                level: 0,
-                nextReview: Date.now(),
-                mistakes: 0
-            };
-        }).filter(c => c !== null); 
+        let newCards = [];
+
+        for(let i=0; i<lines.length; i+=3) {
+            let orig = lines[i];
+            let trans = lines[i+1];
+            let gram = lines[i+2];
+            
+            if (!existingCards.find(c => c.text === orig)) {
+                newCards.push({
+                    id: Date.now().toString() + "_" + i,
+                    text: orig,
+                    translation: trans,
+                    grammar: gram,
+                    chunks: segmentSentence(orig),
+                    level: 0,
+                    nextReview: Date.now(),
+                    mistakes: 0
+                });
+            }
+        }
 
         const updatedCards = [...existingCards, ...newCards];
 
@@ -557,15 +524,8 @@
     }
 
     // --- SRS & Play Logic ---
-    function getDueCards(collection) {
-        const now = Date.now();
-        return collection.cards.filter(c => c.nextReview <= now || c.level === 0)
-                               .sort((a, b) => b.mistakes - a.mistakes || a.nextReview - b.nextReview);
-    }
-
-    // 快捷撸猫入口
     function quickStartPlay(event, colId) {
-        event.stopPropagation(); // 阻止触发外层的 editCollection
+        event.stopPropagation();
         currentCollectionId = colId;
         startPlaySession();
     }
@@ -577,39 +537,56 @@
             return;
         }
 
-        let dueCards = getDueCards(col);
-        if (dueCards.length === 0) {
-            dueCards = [...col.cards].sort(() => 0.5 - Math.random());
+        let dueCards = col.cards.filter(c => c.nextReview <= Date.now() || c.level === 0)
+                               .sort((a, b) => b.mistakes - a.mistakes || a.nextReview - b.nextReview);
+        
+        playQueue = dueCards;
+        // 保证队列里至少有足够的卡片来玩
+        while(playQueue.length < 15 && col.cards.length > 0) {
+            let extra = [...col.cards].sort(() => 0.5 - Math.random());
+            playQueue = playQueue.concat(extra);
         }
 
-        playQueue = dueCards.slice(0, 5);
         currentCardIndex = 0;
+        currentCorrectCount = 0;
         document.getElementById('play-progress').style.width = '0%';
         navTo('view-play');
         loadNextCard();
     }
 
     function loadNextCard() {
-        if (currentCardIndex >= playQueue.length) {
+        if (currentCorrectCount >= targetCorrect) {
             finishSession();
             return;
         }
+        if (currentCardIndex >= playQueue.length) {
+            const col = collections[currentCollectionId];
+            playQueue = playQueue.concat([...col.cards].sort(()=>0.5-Math.random()));
+        }
 
+        isAnswerRevealed = false;
         currentAttempts = 0;
         const card = playQueue[currentCardIndex];
-        let originalChunks = card.chunks.map((html, idx) => ({ id: `c_${idx}`, html: html, originalIdx: idx }));
-        currentChunks = shuffleArray([...originalChunks]);
+        
+        document.getElementById('play-translation').innerText = card.translation || '';
+        const gramBox = document.getElementById('play-grammar');
+        gramBox.classList.add('hidden');
+        gramBox.innerHTML = `<strong>语法分析：</strong><br>${card.grammar || '无'}`;
 
-        document.getElementById('play-prompt').innerHTML = `将散落的毛线球（词块）连起来吧！<br><span style="font-size:12px;color:#666;">* 第 ${currentCardIndex + 1} / ${playQueue.length} 题</span>`;
+        document.getElementById('play-prompt').innerHTML = `将散落的毛线球（词块）连起来吧！`;
+        
+        document.getElementById('btn-skip').classList.remove('hidden');
+        document.getElementById('btn-check').classList.remove('hidden');
+        document.getElementById('btn-next').classList.add('hidden');
         
         document.getElementById('answer-zone').innerHTML = '';
         const pool = document.getElementById('word-pool');
         pool.innerHTML = '';
         
-        currentChunks.forEach(chunk => {
-            pool.appendChild(createWordBlock(chunk));
-        });
-
+        let originalChunks = card.chunks.map((html, idx) => ({ id: `c_${idx}`, html: html, originalIdx: idx }));
+        currentChunks = shuffleArray([...originalChunks]);
+        
+        currentChunks.forEach(chunk => pool.appendChild(createWordBlock(chunk)));
         checkSubmitState();
     }
 
@@ -622,12 +599,10 @@
         div.innerHTML = chunk.html;
         div.dataset.id = chunk.id;
         div.dataset.oid = chunk.originalIdx;
-        
-        // 去掉了猫猫脚印生成代码，维持干净视觉
-
         div.draggable = true;
 
         div.addEventListener('click', (e) => {
+            if(isAnswerRevealed) return;
             const parentId = div.parentElement.id;
             if (parentId === 'word-pool') {
                 document.getElementById('answer-zone').appendChild(div);
@@ -639,13 +614,15 @@
         });
 
         div.addEventListener('dragstart', (e) => {
+            if(isAnswerRevealed) return;
             draggedElement = div;
             setTimeout(() => div.classList.add('dragging'), 0);
             document.getElementById('answer-zone').classList.add('active-drag');
         });
 
         div.addEventListener('dragend', () => {
-            draggedElement.classList.remove('dragging');
+            if(isAnswerRevealed) return;
+            if(draggedElement) draggedElement.classList.remove('dragging');
             draggedElement = null;
             document.getElementById('answer-zone').classList.remove('active-drag');
             checkSubmitState();
@@ -656,6 +633,7 @@
 
     const answerZone = document.getElementById('answer-zone');
     answerZone.addEventListener('dragover', e => {
+        if(isAnswerRevealed) return;
         e.preventDefault();
         const afterElement = getDragAfterElement(answerZone, e.clientX, e.clientY);
         if (afterElement == null) {
@@ -667,6 +645,7 @@
 
     const poolZone = document.getElementById('word-pool');
     poolZone.addEventListener('dragover', e => {
+        if(isAnswerRevealed) return;
         e.preventDefault();
         poolZone.appendChild(draggedElement);
     });
@@ -679,58 +658,74 @@
             const offsetY = y - box.top - box.height / 2;
             
             if (offsetY < box.height && offsetY > -box.height) {
-                 if (offsetX < 0 && offsetX > closest.offset) {
-                    return { offset: offsetX, element: child };
-                 }
+                 if (offsetX < 0 && offsetX > closest.offset) return { offset: offsetX, element: child };
             }
             return closest;
         }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 
     function checkSubmitState() {
+        if(isAnswerRevealed) return;
         const poolEmpty = document.getElementById('word-pool').children.length === 0;
         document.getElementById('btn-check').disabled = !poolEmpty;
         
         const blocks = document.getElementById('answer-zone').children;
-        for(let b of blocks) {
-            b.classList.remove('wrong', 'correct');
-        }
+        for(let b of blocks) b.classList.remove('wrong', 'correct');
         document.getElementById('play-prompt').innerHTML = `选好了吗？主子在看着你哦~`;
     }
 
-    // --- Checking Logic ---
+    function showGrammarAndNext() {
+        isAnswerRevealed = true;
+        document.getElementById('play-grammar').classList.remove('hidden');
+        document.getElementById('btn-skip').classList.add('hidden');
+        document.getElementById('btn-check').classList.add('hidden');
+        document.getElementById('btn-next').classList.remove('hidden');
+        
+        // 锁定所有的词块
+        const allBlocks = document.querySelectorAll('.word-block');
+        allBlocks.forEach(b => {
+            b.draggable = false;
+            b.classList.add('locked');
+        });
+    }
+
+    function autoAssemble() {
+        const blocks = [...document.getElementById('answer-zone').children, ...document.getElementById('word-pool').children];
+        blocks.sort((a, b) => parseInt(a.dataset.oid) - parseInt(b.dataset.oid));
+        const ansZone = document.getElementById('answer-zone');
+        ansZone.innerHTML = '';
+        document.getElementById('word-pool').innerHTML = '';
+        blocks.forEach(b => {
+            ansZone.appendChild(b);
+            b.classList.add('correct');
+            b.classList.remove('wrong');
+        });
+    }
+
     function checkAnswer() {
+        if(isAnswerRevealed) return;
         const blocks = [...document.getElementById('answer-zone').children];
         const currentCard = playQueue[currentCardIndex];
         
         let allCorrect = true;
-        
         blocks.forEach((block, idx) => {
             if (parseInt(block.dataset.oid) === idx) {
-                block.classList.add('correct');
-                block.classList.remove('wrong');
+                block.classList.add('correct'); block.classList.remove('wrong');
             } else {
-                block.classList.add('wrong');
-                block.classList.remove('correct');
+                block.classList.add('wrong'); block.classList.remove('correct');
                 allCorrect = false;
             }
         });
 
         if (allCorrect) {
-            document.getElementById('play-prompt').innerHTML = `答对啦！主子赏你一个呼噜噜 🐾`;
+            currentCorrectCount++;
+            document.getElementById('play-progress').style.width = `${(currentCorrectCount / targetCorrect) * 100}%`;
+            document.getElementById('play-prompt').innerHTML = `答对啦！主子赏你一个呼噜噜 🐾 (进度: ${currentCorrectCount}/${targetCorrect})`;
             
-            if(currentAttempts === 0) {
-                currentCard.level = Math.min(currentCard.level + 1, SRS_INTERVALS.length - 1);
-            }
+            if(currentAttempts === 0) currentCard.level = Math.min(currentCard.level + 1, SRS_INTERVALS.length - 1);
             currentCard.nextReview = Date.now() + SRS_INTERVALS[currentCard.level] * 24 * 60 * 60 * 1000;
             
-            document.getElementById('play-progress').style.width = `${((currentCardIndex + 1) / playQueue.length) * 100}%`;
-            
-            setTimeout(() => {
-                currentCardIndex++;
-                loadNextCard();
-            }, 1000);
-            
+            showGrammarAndNext();
         } else {
             currentAttempts++;
             currentCard.mistakes++;
@@ -738,24 +733,32 @@
             currentCard.nextReview = Date.now() + 10 * 60 * 1000; 
 
             if (currentAttempts >= 3) {
-                document.getElementById('play-prompt').innerHTML = `主子等得不耐烦啦，直接告诉你正确答案吧！`;
-                blocks.sort((a, b) => parseInt(a.dataset.oid) - parseInt(b.dataset.oid));
-                blocks.forEach(b => {
-                    answerZone.appendChild(b);
-                    b.classList.add('correct');
-                    b.classList.remove('wrong');
-                });
-                
-                setTimeout(() => {
-                    currentCardIndex++;
-                    loadNextCard();
-                }, 2500);
-
+                document.getElementById('play-prompt').innerHTML = `主子等得不耐烦啦，正确答案和语法在这里！`;
+                autoAssemble();
+                showGrammarAndNext();
             } else {
                 document.getElementById('play-prompt').innerHTML = `哎呀，排错啦！再试试看？(第 ${currentAttempts}/3 次尝试)`;
             }
         }
         saveData();
+    }
+
+    function skipAnswer() {
+        if(isAnswerRevealed) return;
+        const currentCard = playQueue[currentCardIndex];
+        currentCard.mistakes++; // 算作错题加深记忆
+        currentCard.level = Math.max(0, currentCard.level - 1);
+        currentCard.nextReview = Date.now() + 10 * 60 * 1000;
+        saveData();
+
+        document.getElementById('play-prompt').innerHTML = `跳过啦！先来看看正确答案和语法吧~`;
+        autoAssemble();
+        showGrammarAndNext();
+    }
+
+    function onNextClicked() {
+        currentCardIndex++;
+        loadNextCard();
     }
 
     function finishSession() {
@@ -764,24 +767,22 @@
         const yesterday = new Date(Date.now() - 86400000).toDateString();
         
         if (col.lastPlayDate !== today) {
-            if (col.lastPlayDate === yesterday) {
-                col.streakCount = (col.streakCount || 0) + 1;
-            } else {
-                col.streakCount = 1; 
-            }
+            if (col.lastPlayDate === yesterday) col.streakCount = (col.streakCount || 0) + 1;
+            else col.streakCount = 1; 
             col.lastPlayDate = today;
         }
         
         saveData();
-        
-        document.getElementById('play-prompt').innerHTML = `今日份的猫条喂食完毕！主子很满意！😽`;
+        document.getElementById('play-prompt').innerHTML = `太棒啦！今日份的连胜条件（对 ${targetCorrect} 题）已达成，成功点燃火花！😽🔥`;
         document.getElementById('answer-zone').innerHTML = '';
         document.getElementById('word-pool').innerHTML = '';
-        document.getElementById('btn-check').disabled = true;
+        document.getElementById('play-translation').innerText = '';
+        document.getElementById('play-grammar').classList.add('hidden');
+        document.getElementById('btn-skip').classList.add('hidden');
+        document.getElementById('btn-check').classList.add('hidden');
+        document.getElementById('btn-next').classList.add('hidden');
         
-        setTimeout(() => {
-            navTo('view-home');
-        }, 2000);
+        setTimeout(() => navTo('view-home'), 2500);
     }
 
     // --- Mistake Book ---
@@ -792,9 +793,7 @@
         let allMistakes = [];
         Object.values(collections).forEach(col => {
             col.cards.forEach(card => {
-                if (card.mistakes > 0) {
-                    allMistakes.push({ colName: col.name, card: card });
-                }
+                if (card.mistakes > 0) allMistakes.push({ colName: col.name, card: card });
             });
         });
 
@@ -809,28 +808,24 @@
                 li.style.cursor = 'default';
                 li.style.transform = 'none';
                 
-                const plainText = removeRubyForLength(item.card.text);
-
                 li.innerHTML = `
                     <div style="display:flex; flex-direction:column; gap:5px;">
                         <span style="font-size: 14px; color: #666;">来源: ${item.colName}</span>
                         <span style="font-weight: bold; font-size: 16px;">${item.card.text}</span>
+                        <span style="font-size: 14px; color: #555;">(${item.card.translation || '暂无翻译'})</span>
                     </div>
-                    <div style="background: var(--light-red); padding: 5px 10px; border-radius: 8px; border: 1px solid var(--black); font-size: 14px;">
-                        连错 ${item.card.mistakes} 次
+                    <div style="background: var(--light-red); padding: 5px 10px; border-radius: 8px; border: 1px solid var(--black); font-size: 14px; text-align: center;">
+                        惹怒猫猫<br>${item.card.mistakes} 次
                     </div>
                 `;
                 list.appendChild(li);
             });
         }
-        
         navTo('view-mistakes');
     }
 
     // --- Initialization ---
-    window.onload = () => {
-        renderHome();
-    };
+    window.onload = () => renderHome();
 
 </script>
 </body>
